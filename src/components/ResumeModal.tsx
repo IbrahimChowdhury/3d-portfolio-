@@ -1,13 +1,33 @@
 import { useEffect } from 'react';
-import { Download, Printer, X } from 'lucide-react';
-import { buildPlainTextResume, RESUME_CONTENT } from '../data/portfolioData';
+import { Download, FileText, Printer, X } from 'lucide-react';
+import {
+  buildPlainTextResume,
+  type CertificateItem,
+  type EducationItem,
+  type PortfolioProfile,
+  type ProjectItem,
+  type SkillCategory,
+} from '../data/portfolioData';
 
 interface ResumeModalProps {
   open: boolean;
   onClose: () => void;
+  profile: PortfolioProfile;
+  skills: SkillCategory[];
+  projects: ProjectItem[];
+  certificates: CertificateItem[];
+  education: EducationItem[];
 }
 
-export function ResumeModal({ open, onClose }: ResumeModalProps) {
+export function ResumeModal({
+  open,
+  onClose,
+  profile,
+  skills,
+  projects,
+  certificates,
+  education,
+}: ResumeModalProps) {
   useEffect(() => {
     if (!open) return;
     const prevOverflow = document.body.style.overflow;
@@ -25,21 +45,28 @@ export function ResumeModal({ open, onClose }: ResumeModalProps) {
 
   if (!open) return null;
 
-  const handleDownload = () => {
-    const content = buildPlainTextResume();
+  const publishedSkills = skills.filter((s) => s.published);
+  const publishedProjects = projects.filter((p) => p.published);
+  const publishedCerts = certificates.filter((c) => c.published);
+  const publishedEdu = education.filter((e) => e.published);
+
+  const handleDownloadText = () => {
+    const content = buildPlainTextResume(
+      profile,
+      publishedSkills,
+      publishedProjects,
+      publishedCerts,
+      publishedEdu,
+    );
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'Darian_Mercer_Resume.txt';
+    link.download = `${profile.name.replace(/\s+/g, '_')}_CV.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   return (
@@ -51,7 +78,7 @@ export function ResumeModal({ open, onClose }: ResumeModalProps) {
       onClick={onClose}
     >
       <div
-        className="glass-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-2xl p-6 sm:p-8 space-y-6"
+        className="glass-panel w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 sm:p-8 space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
@@ -60,10 +87,12 @@ export function ResumeModal({ open, onClose }: ResumeModalProps) {
               id="resume-modal-title"
               className="text-xl sm:text-2xl font-semibold tracking-tight text-white"
             >
-              {RESUME_CONTENT.headline}
+              {profile.name} — {profile.role}
             </h3>
             <p className="mt-1 text-xs sm:text-sm text-slate-400">
-              {RESUME_CONTENT.contactLine}
+              {profile.email}
+              {profile.showPhone && profile.phone ? ` · ${profile.phone}` : ''}
+              {profile.location ? ` · ${profile.location}` : ''}
             </p>
           </div>
 
@@ -78,70 +107,121 @@ export function ResumeModal({ open, onClose }: ResumeModalProps) {
         </div>
 
         <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
+          {/* Summary */}
           <div className="space-y-1.5">
             <h4 className="text-xs font-semibold text-slate-400">Summary</h4>
-            <p>{RESUME_CONTENT.summary}</p>
+            <p>{profile.heroSummary}</p>
           </div>
 
-          <div className="space-y-1.5">
-            <h4 className="text-xs font-semibold text-slate-400">Core Stack</h4>
-            <p className="text-slate-100">
-              React · Next.js · Node.js · MongoDB · TypeScript · Applied AI
-            </p>
-          </div>
+          {/* Skills */}
+          {publishedSkills.length > 0 && (
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-semibold text-slate-400">Technical Skills</h4>
+              <div className="space-y-1.5 text-xs sm:text-sm">
+                {publishedSkills.map((group) => (
+                  <div key={group.id}>
+                    <span className="font-semibold text-slate-100">{group.name}: </span>
+                    <span className="text-slate-300">{group.items.join(', ')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-          <div className="space-y-4">
-            <h4 className="text-xs font-semibold text-slate-400">Experience</h4>
-            {RESUME_CONTENT.experience.map((job) => (
-              <div
-                key={`${job.company}-${job.period}`}
-                className="space-y-2 pb-4 border-b border-white/[0.07] last:border-b-0 last:pb-0"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <div className="font-semibold text-slate-100">
-                    {job.role} <span className="text-slate-400 font-normal">· {job.company}</span>
+          {/* Projects */}
+          {publishedProjects.length > 0 && (
+            <div className="space-y-3.5">
+              <h4 className="text-xs font-semibold text-slate-400">Projects</h4>
+              {publishedProjects.map((proj) => (
+                <div
+                  key={proj.id}
+                  className="space-y-1 pb-3.5 border-b border-white/[0.07] last:border-b-0 last:pb-0"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="font-semibold text-slate-100">{proj.title}</div>
+                    <div className="font-mono text-xs text-slate-400 tabular-nums">
+                      {proj.year}
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400">{proj.stack.join(' · ')}</div>
+                  <p className="text-xs sm:text-sm text-slate-300">{proj.summary}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Certificates */}
+          {publishedCerts.length > 0 && (
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-semibold text-slate-400">Certificates</h4>
+              {publishedCerts.map((cert) => (
+                <div key={cert.id} className="space-y-0.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="font-medium text-slate-100">
+                      {cert.title} — <span className="text-slate-300">{cert.program}</span>
+                    </div>
+                    <span className="font-mono text-xs text-slate-400 tabular-nums">
+                      Issued {cert.issuedYear}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">{cert.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Education */}
+          {publishedEdu.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-slate-400">Education</h4>
+              {publishedEdu.map((edu) => (
+                <div key={edu.id} className="space-y-0.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="font-semibold text-slate-100">{edu.degree}</div>
+                    <span className="font-mono text-xs text-slate-400 tabular-nums">
+                      {edu.period}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300">
+                    {edu.institution} · {edu.department}
                   </div>
                   <div className="font-mono text-xs text-slate-400 tabular-nums">
-                    {job.period}
+                    CGPA: {edu.cgpa} · Status: {edu.status}
                   </div>
                 </div>
-                <ul className="space-y-1.5 text-slate-300">
-                  {job.highlights.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5">
-                      <span className="text-sky-400 select-none" aria-hidden="true">
-                        —
-                      </span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-1">
-            <h4 className="text-xs font-semibold text-slate-400">Education</h4>
-            <p className="text-slate-200">{RESUME_CONTENT.education}</p>
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/10">
+        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-white/10">
+          {profile.resumeUrl && (
+            <a
+              href={profile.resumeUrl}
+              download="Ibrahim_Chowdhury_CV.pdf"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-950 bg-sky-400 hover:bg-sky-300 transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+            >
+              <Download className="w-4 h-4" aria-hidden="true" />
+              <span>Download Original PDF CV</span>
+            </a>
+          )}
+
           <button
             type="button"
-            onClick={handleDownload}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-950 bg-sky-400 hover:bg-sky-300 transition-colors cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+            onClick={handleDownloadText}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 border border-white/15 hover:border-white/30 hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            <Download className="w-4 h-4" aria-hidden="true" />
-            <span>Download Resume</span>
+            <FileText className="w-4 h-4" aria-hidden="true" />
+            <span>Export Live Text</span>
           </button>
 
           <button
             type="button"
-            onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-slate-200 border border-white/15 hover:border-white/30 hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-200 border border-white/15 hover:border-white/30 hover:bg-white/[0.05] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             <Printer className="w-4 h-4" aria-hidden="true" />
-            <span>Print / Save PDF</span>
+            <span>Print</span>
           </button>
         </div>
       </div>

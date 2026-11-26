@@ -5,6 +5,13 @@ import { createCoreAssembly, type CoreAssemblyHandle } from './coreAssembly';
 import { createFloatingNodes, type FloatingNodesHandle } from './floatingNodes';
 import { createParticleField, type ParticleFieldHandle } from './particleField';
 import { createProceduralTextures, type ProceduralTextureSet } from './textures';
+import type { AccentTheme, SceneSettings } from '../data/portfolioData';
+
+const ACCENT_HEX: Record<AccentTheme, number> = {
+  sapphire: 0x38bdf8,
+  emerald: 0x10b981,
+  amber: 0xf59e0b,
+};
 
 export interface PortfolioSceneCallbacks {
   onWebGLUnavailable?: () => void;
@@ -115,6 +122,7 @@ export class PortfolioScene {
   private nodes!: FloatingNodesHandle;
   private particles!: ParticleFieldHandle;
   private coreLight!: THREE.PointLight;
+  private rimLight!: THREE.DirectionalLight;
   private stageGroup!: THREE.Group;
 
   private isSoftwareGl = false;
@@ -125,6 +133,7 @@ export class PortfolioScene {
 
   private lastTimestamp = 0;
   private simElapsed = 0;
+  private speedMultiplier = 1.0;
 
   // Interactive smoothed states
   private targetPointerX = 0;
@@ -233,9 +242,9 @@ export class PortfolioScene {
     this.scene.add(keyLight);
 
     // Electric sapphire rim light separating metallic bevels from obsidian sky
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.55);
-    rimLight.position.set(-7.0, 3.5, -5.5);
-    this.scene.add(rimLight);
+    this.rimLight = new THREE.DirectionalLight(0x38bdf8, 1.55);
+    this.rimLight.position.set(-7.0, 3.5, -5.5);
+    this.scene.add(this.rimLight);
 
     // Optional studio softbox for crisp elongated reflections on hardware GPUs
     if (!this.isSoftwareGl) {
@@ -442,8 +451,9 @@ export class PortfolioScene {
 
     const rawDelta = this.lastTimestamp ? (now - this.lastTimestamp) / 1000 : 1 / 60;
     const delta = Math.min(rawDelta, 0.05);
+    const scaledDelta = delta * this.speedMultiplier;
     this.lastTimestamp = now;
-    this.simElapsed += delta;
+    this.simElapsed += scaledDelta;
 
     // Frame-rate independent exponential damping
     const dampFast = 1 - Math.exp(-6.5 * delta);
@@ -460,7 +470,7 @@ export class PortfolioScene {
     this.applyCameraAndStage(dampSmooth);
 
     // Update procedural 3D subsystems
-    this.core.update(this.simElapsed, delta);
+    this.core.update(this.simElapsed, scaledDelta);
     this.coreLight.intensity = 2.6 + Math.sin(this.simElapsed * 1.9) * 0.55;
     this.stageGroup.updateMatrixWorld(true);
     this.core.updateAnchorWorldPositions();
@@ -519,6 +529,20 @@ export class PortfolioScene {
       this.requestPausedRender();
     } else if (!this.isContextLost) {
       this.startLoop();
+    }
+  }
+
+  public applySceneSettings(settings: SceneSettings): void {
+    if (this.isDisposed) return;
+    this.speedMultiplier = THREE.MathUtils.clamp(settings.coreSpeed, 0, 2.5);
+    const hex = ACCENT_HEX[settings.accentTheme] ?? ACCENT_HEX.sapphire;
+    this.core.setAccentColor(hex);
+    this.nodes.setAccentColor(hex);
+    this.coreLight.color.setHex(hex);
+    this.rimLight.color.setHex(hex);
+    this.particles.points.visible = settings.showParticles;
+    if (this.isPaused) {
+      this.requestPausedRender();
     }
   }
 

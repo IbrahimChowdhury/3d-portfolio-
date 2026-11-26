@@ -1,4 +1,5 @@
 import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from 'react';
+import type { SceneSettings } from '../data/portfolioData';
 import { PortfolioScene } from '../three/PortfolioScene';
 
 export interface SceneCanvasHandle {
@@ -8,13 +9,15 @@ export interface SceneCanvasHandle {
 
 interface SceneCanvasProps {
   isPaused: boolean;
+  sceneSettings: SceneSettings;
 }
 
 export const SceneCanvas = forwardRef<SceneCanvasHandle, SceneCanvasProps>(
-  function SceneCanvas({ isPaused }, ref) {
+  function SceneCanvas({ isPaused, sceneSettings }, ref) {
     const mountRef = useRef<HTMLDivElement | null>(null);
     const sceneRef = useRef<PortfolioScene | null>(null);
     const initialPausedRef = useRef<boolean>(isPaused);
+    const initialSettingsRef = useRef<SceneSettings>(sceneSettings);
     const [webglUnavailable, setWebglUnavailable] = useState(false);
 
     useEffect(() => {
@@ -24,6 +27,7 @@ export const SceneCanvas = forwardRef<SceneCanvasHandle, SceneCanvasProps>(
       const scene = new PortfolioScene(container, initialPausedRef.current, {
         onWebGLUnavailable: () => setWebglUnavailable(true),
       });
+      scene.applySceneSettings(initialSettingsRef.current);
       sceneRef.current = scene;
 
       return () => {
@@ -35,6 +39,10 @@ export const SceneCanvas = forwardRef<SceneCanvasHandle, SceneCanvasProps>(
     useEffect(() => {
       sceneRef.current?.setPaused(isPaused);
     }, [isPaused]);
+
+    useEffect(() => {
+      sceneRef.current?.applySceneSettings(sceneSettings);
+    }, [sceneSettings]);
 
     useImperativeHandle(ref, () => ({
       nudgeOrbit: () => sceneRef.current?.nudgeOrbit(),

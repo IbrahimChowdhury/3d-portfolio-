@@ -6,6 +6,7 @@ export interface CoreAssemblyHandle {
   anchorWorldPositions: THREE.Vector3[];
   update: (elapsed: number, delta: number) => void;
   updateAnchorWorldPositions: () => void;
+  setAccentColor: (hex: number) => void;
   dispose: () => void;
 }
 
@@ -383,6 +384,15 @@ export function createCoreAssembly(
     groundPlane.rotation.y += delta * 0.04;
   };
 
+  const setAccentColor = (hex: number) => {
+    innerCoreMat.color.setHex(hex);
+    innerCoreMat.emissive.setHex(hex);
+    emissiveTrimMat.emissive.setHex(hex);
+    glassShellMat.color.setHex(hex);
+    glassShellMat.attenuationColor.setHex(hex);
+    cageWireMat.color.setHex(hex);
+  };
+
   const dispose = () => {
     geometries.forEach((g) => g.dispose());
     materials.forEach((m) => m.dispose());
@@ -393,6 +403,7 @@ export function createCoreAssembly(
     anchorWorldPositions,
     update,
     updateAnchorWorldPositions,
+    setAccentColor,
     dispose,
   };
 }

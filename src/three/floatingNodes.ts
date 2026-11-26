@@ -8,6 +8,7 @@ export interface FloatingNodesHandle {
     pointerY: number,
     coreAnchors: THREE.Vector3[],
   ) => void;
+  setAccentColor: (hex: number) => void;
   dispose: () => void;
 }
 
@@ -222,6 +223,11 @@ export function createFloatingNodes(): FloatingNodesHandle {
   shellMesh.computeBoundingSphere();
   coreMesh.computeBoundingSphere();
 
+  const setAccentColor = (hex: number) => {
+    coreMat.emissive.setHex(hex);
+    lineMat.color.setHex(hex);
+  };
+
   const dispose = () => {
     shellGeo.dispose();
     coreGeo.dispose();
@@ -231,5 +237,5 @@ export function createFloatingNodes(): FloatingNodesHandle {
     lineMat.dispose();
   };
 
-  return { group, update, dispose };
+  return { group, update, setAccentColor, dispose };
 }

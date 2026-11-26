@@ -1,19 +1,69 @@
-export type ProjectCategory = 'All' | 'Full-Stack' | 'AI Systems' | 'Infrastructure';
+export type ProjectCategory = 'All' | 'Full-Stack' | 'AI Systems' | 'Platform';
+export type EditableProjectCategory = Exclude<ProjectCategory, 'All'>;
+export type AccentTheme = 'sapphire' | 'emerald' | 'amber';
+export type MessageStatus = 'unread' | 'read' | 'archived';
 
-export interface TechStackItem {
+export interface HighlightMetric {
+  value: string;
+  label: string;
+}
+
+export interface SectionVisibility {
+  about: boolean;
+  skills: boolean;
+  projects: boolean;
+  certificates: boolean;
+  education: boolean;
+  contact: boolean;
+}
+
+export interface SceneSettings {
+  coreSpeed: number;
+  accentTheme: AccentTheme;
+  showParticles: boolean;
+}
+
+export interface PortfolioProfile {
+  name: string;
+  role: string;
+  headline: string;
+  location: string;
+  availability: string;
+  email: string;
+  phone: string;
+  showPhone: boolean;
+  githubUrl: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
+  resumeUrl: string;
+  heroSummary: string;
+  aboutLead: string;
+  aboutBody: string;
+  metrics: HighlightMetric[];
+  sectionVisibility: SectionVisibility;
+  sceneSettings: SceneSettings;
+}
+
+export interface SkillCategory {
   id: string;
   name: string;
   domain: string;
   experience: string;
   summary: string;
-  capabilities: string[];
-  relatedProjectIds: string[];
+  items: string[];
+  order: number;
+  published: boolean;
+}
+
+export interface ProjectOutcome {
+  metric: string;
+  label: string;
 }
 
 export interface ProjectItem {
   id: string;
   title: string;
-  category: Exclude<ProjectCategory, 'All'>;
+  category: EditableProjectCategory;
   year: string;
   role: string;
   summary: string;
@@ -22,299 +72,444 @@ export interface ProjectItem {
   imageAlt: string;
   stack: string[];
   architecture: string[];
-  outcomes: {
-    metric: string;
-    label: string;
-  }[];
+  outcomes: ProjectOutcome[];
   liveUrl: string;
   githubUrl: string;
+  featured: boolean;
+  order: number;
+  published: boolean;
 }
 
-export const DEVELOPER_PROFILE = {
-  name: 'Darian Mercer',
-  role: 'Full-Stack Systems Engineer',
-  location: 'San Francisco, CA',
-  availability: 'Available for staff engineering & advisory roles',
-  email: 'hello@darianmercer.dev',
-  githubUrl: 'https://github.com/darianmercer',
-  linkedinUrl: 'https://linkedin.com/in/darianmercer',
-  xUrl: 'https://x.com/darianmercer',
+export interface CertificateItem {
+  id: string;
+  title: string;
+  program: string;
+  issuer: string;
+  issuedYear: string;
+  description: string;
+  credentialUrl: string;
+  order: number;
+  published: boolean;
+}
+
+export interface EducationItem {
+  id: string;
+  degree: string;
+  institution: string;
+  department: string;
+  period: string;
+  cgpa: string;
+  status: string;
+  order: number;
+  published: boolean;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: MessageStatus;
+  createdAtMs: number;
+}
+
+export const PROJECT_IMAGE_PRESETS = [
+  {
+    label: 'Network Architecture Grid',
+    url: '/src/assets/images/project_veridian_mesh_1795619317888.jpg',
+  },
+  {
+    label: 'Drafting Glass Studio',
+    url: '/src/assets/images/project_kestrel_studio_1795619293545.jpg',
+  },
+  {
+    label: 'Optical Prism Beam',
+    url: '/src/assets/images/project_solis_retrieval_1795619293545.jpg',
+  },
+  {
+    label: 'Titanium Glass Ledger',
+    url: '/src/assets/images/project_caldera_pay_1795619315452.jpg',
+  },
+];
+
+export const DEFAULT_PROFILE: PortfolioProfile = {
+  name: 'Ibrahim Chowdhury',
+  role: 'Full Stack Web Developer',
+  headline: 'Building scalable full-stack web systems accelerated by modern AI tooling',
+  location: 'Islamic University, Bangladesh',
+  availability: 'Final-year BSc ICT Engineering · Open to Full-Stack roles & freelance builds',
+  email: 'ibrahimchowdhury1000@gmail.com',
+  phone: '01734935995',
+  showPhone: true,
+  githubUrl: 'https://github.com/ibrahimchowdhury',
+  linkedinUrl: 'https://linkedin.com/in/ibrahimchowdhury',
+  portfolioUrl: 'https://ibrahimchowdhury.dev',
+  resumeUrl: '/assets/aistudio/New_Ibrahim_cv_71d777f1.pdf',
   heroSummary:
-    'I architect resilient full-stack web platforms, real-time 3D interfaces, and production AI retrieval pipelines built for low latency and enduring craft.',
+    'Full Stack Web Developer with hands-on expertise building high-performance applications using Next.js, React, Node.js, Express, MongoDB, Tailwind CSS, Supabase, and Firebase—paired with AI-assisted engineering workflows.',
   aboutLead:
-    'Over the past eight years, I have led end-to-end architecture across distributed Node.js backends, high-throughput MongoDB data layers, and precision React & Next.js interfaces.',
+    'I specialize in architecting clean, scalable full-stack applications from responsive React & Next.js interfaces down to RBAC-secured Node.js APIs, MongoDB Atlas, and Supabase/Firebase backends.',
   aboutBody:
-    'My work sits at the intersection of systems rigor and tactile interface engineering—turning complex streaming telemetry, multi-tenant APIs, and applied AI workflows into responsive software that feels effortless under load.',
+    'By combining strong engineering fundamentals with modern AI-powered development tools—including Claude, OpenCode, GitHub Copilot, Cursor, Antigravity, and Kiro AI—I accelerate architecture, debugging, and production shipping without compromising code quality or UX.',
   metrics: [
     {
-      value: '8+ yrs',
-      label: 'Full-stack production systems delivered across fintech & developer infrastructure',
+      value: '20%',
+      label: 'Institutional workflows automated via School Management System admin panel',
     },
     {
-      value: '< 42 ms',
-      label: 'Median p95 API latency across edge-routed Node.js & MongoDB deployments',
+      value: '4+ Apps',
+      label: 'Production full-stack platforms built across education, SaaS & productivity',
     },
     {
-      value: '3.4M+',
-      label: 'Monthly active sessions served across React, Next.js, and WebGL applications',
+      value: '3.35 CGPA',
+      label: 'Final-year BSc Engineering in ICT at Islamic University, Bangladesh',
     },
   ],
+  sectionVisibility: {
+    about: true,
+    skills: true,
+    projects: true,
+    certificates: true,
+    education: true,
+    contact: true,
+  },
+  sceneSettings: {
+    coreSpeed: 1.0,
+    accentTheme: 'sapphire',
+    showParticles: true,
+  },
 };
 
-export const TECH_STACK: TechStackItem[] = [
+export const DEFAULT_SKILLS: SkillCategory[] = [
   {
-    id: 'react',
-    name: 'React',
-    domain: 'Interactive UI & Canvas Architecture',
-    experience: '7+ years',
+    id: 'skill-frontend',
+    name: 'Front-End',
+    domain: 'Modern UI & Motion Architecture',
+    experience: 'Core Focus',
     summary:
-      'Concurrent UI engineering, custom design systems, zero-jank state orchestration, and isolated WebGL/Three.js lifecycles.',
-    capabilities: [
-      'React 19 concurrent rendering & transitions',
-      'Accessible keyboard-first component libraries',
-      'Ref-isolated Three.js & Canvas integration',
+      'Responsive, accessible interfaces built with React.js, Next.js, Tailwind CSS, ShadCN UI, and fluid state/motion orchestration.',
+    items: [
+      'HTML5',
+      'CSS3',
+      'React.js',
+      'Next.js',
+      'Tailwind CSS',
+      'ShadCN UI',
+      'Bootstrap',
+      'Framer Motion',
+      'Redux',
+      'Zustand',
+      'Responsive Design',
+      'UI/UX Optimization',
     ],
-    relatedProjectIds: ['kestrel-studio', 'caldera-pay'],
+    order: 1,
+    published: true,
   },
   {
-    id: 'nextjs',
-    name: 'Next.js',
-    domain: 'Full-Stack Web Platform',
-    experience: '5+ years',
+    id: 'skill-backend',
+    name: 'Back-End',
+    domain: 'APIs & Role-Based Security',
+    experience: 'Core Focus',
     summary:
-      'App Router architectures, streaming React Server Components, edge middleware, and incremental static regeneration.',
-    capabilities: [
-      'Server Actions & streaming SSR pipelines',
-      'Edge caching, ISR & multi-region routing',
-      'Core Web Vitals & bundle optimization',
+      'Modular server logic, RESTful API design, Next.js API Routes, and Role-Based Access Control (RBAC) for multi-user platforms.',
+    items: [
+      'Node.js',
+      'Express.js',
+      'RESTful API Development',
+      'Next.js API Routes',
+      'Authorization (RBAC)',
     ],
-    relatedProjectIds: ['veridian-mesh', 'solis-retrieval'],
+    order: 2,
+    published: true,
   },
   {
-    id: 'nodejs',
-    name: 'Node.js',
-    domain: 'Distributed Services & Streaming',
-    experience: '7+ years',
+    id: 'skill-database',
+    name: 'Database',
+    domain: 'NoSQL & Relational Modeling',
+    experience: 'Production',
     summary:
-      'Event-driven microservices, high-concurrency WebSocket gateways, worker queues, and structured observability.',
-    capabilities: [
-      'Express & Fastify API gateways',
-      'Backpressure-safe streams & WebSockets',
-      'OpenTelemetry tracing & circuit breakers',
-    ],
-    relatedProjectIds: ['veridian-mesh', 'caldera-pay', 'kestrel-studio'],
+      'Structured schema modeling and query optimization across MongoDB, PostgreSQL, and SQL data stores.',
+    items: ['MongoDB', 'PostgreSQL', 'SQL'],
+    order: 3,
+    published: true,
   },
   {
-    id: 'mongodb',
-    name: 'MongoDB',
-    domain: 'Document & Vector Persistence',
-    experience: '6+ years',
+    id: 'skill-baas',
+    name: 'BaaS',
+    domain: 'Managed Cloud Backends',
+    experience: 'Production',
     summary:
-      'Schema modeling for high-write workloads, aggregation pipelines, change streams, and Atlas Vector Search.',
-    capabilities: [
-      'Compound indexing & sharded cluster design',
-      'Real-time Change Streams & event sourcing',
-      'Hybrid lexical + vector search pipelines',
-    ],
-    relatedProjectIds: ['veridian-mesh', 'solis-retrieval', 'caldera-pay'],
+      'Rapid real-time authentication, database synchronization, storage, and security rules using Supabase, Firebase, and AppWrite.',
+    items: ['Supabase', 'Firebase', 'AppWrite'],
+    order: 4,
+    published: true,
   },
   {
-    id: 'typescript',
-    name: 'TypeScript',
-    domain: 'End-to-End Type Safety',
-    experience: '6+ years',
+    id: 'skill-languages',
+    name: 'Programming Languages',
+    domain: 'Core Engineering Foundations',
+    experience: 'BSc ICT',
     summary:
-      'Strict shared domain contracts from database schema to client state, eliminating runtime integration drift.',
-    capabilities: [
-      'Strict monorepo shared schemas & RPC contracts',
-      'Discriminated unions & exhaustive state machines',
-      'Runtime validation with zero-overhead codecs',
-    ],
-    relatedProjectIds: ['veridian-mesh', 'kestrel-studio', 'solis-retrieval', 'caldera-pay'],
+      'Strong algorithmic foundation across modern JavaScript (ES6+), Python, C, and C++.',
+    items: ['JavaScript (ES6+)', 'Python', 'C', 'C++'],
+    order: 5,
+    published: true,
   },
   {
-    id: 'ai',
-    name: 'AI',
-    domain: 'Applied Retrieval & Agent Workflows',
-    experience: '3+ years',
+    id: 'skill-ai',
+    name: 'AI-Assisted Development',
+    domain: 'Accelerated Delivery & Debugging',
+    experience: 'Daily Workflow',
     summary:
-      'Grounded RAG pipelines, hybrid semantic reranking, structured tool execution, and deterministic evaluation harnesses.',
-    capabilities: [
-      'Hybrid vector + BM25 retrieval with citations',
-      'Streaming structured JSON & tool calling',
-      'Automated latency, accuracy & drift evals',
-    ],
-    relatedProjectIds: ['solis-retrieval', 'kestrel-studio'],
+      'Expert at leveraging leading AI coding assistants to accelerate full-stack prototyping, refactoring, testing, and deployment.',
+    items: ['Claude', 'OpenCode', 'GitHub Copilot', 'Cursor', 'Antigravity', 'Kiro AI'],
+    order: 6,
+    published: true,
+  },
+  {
+    id: 'skill-tools',
+    name: 'Developer Tools',
+    domain: 'CI/CD & Cloud Deployment',
+    experience: 'Production',
+    summary:
+      'End-to-end version control, API verification, cloud database hosting, and edge deployments.',
+    items: ['Git', 'GitHub', 'Postman', 'Vercel', 'Netlify', 'Render', 'MongoDB Atlas'],
+    order: 7,
+    published: true,
   },
 ];
 
-export const PROJECTS: ProjectItem[] = [
+export const DEFAULT_PROJECTS: ProjectItem[] = [
   {
-    id: 'veridian-mesh',
-    title: 'Veridian Mesh',
-    category: 'Infrastructure',
-    year: '2026',
-    role: 'Lead Architect',
+    id: 'school-management-system',
+    title: 'School Management System',
+    category: 'Platform',
+    year: '2025',
+    role: 'Full-Stack Developer',
     summary:
-      'Distributed edge-routing control plane with live topology visualization and sub-second failover policies.',
+      'Real-world web platform for Islamic University Laboratory School and College featuring dynamic notices, events, schedules, and an independent admin panel.',
     description:
-      'Designed and built an enterprise control plane for routing API traffic across 18 global edge regions. Combines a streaming Next.js workspace with an event-driven Node.js ingestion tier backed by MongoDB time-series collections.',
+      'Developed a real-world institutional web system for Islamic University Laboratory School and College. Students, parents, and faculty access dynamic notices, academic schedules, and events while staff operate an independent admin panel that automated 20% of institutional workflows.',
     image: '/src/assets/images/project_veridian_mesh_1795619317888.jpg',
     imageAlt:
-      'Isometric architectural visualization of obsidian server nodes connected by ice-blue optical links over a dark drafting grid',
-    stack: ['Next.js', 'Node.js', 'TypeScript', 'MongoDB'],
+      'Architectural studio rendering of interconnected dark nodes and optical links representing institutional management infrastructure',
+    stack: ['React', 'Next.js', 'Supabase', 'Cloudinary', 'Tailwind CSS'],
     architecture: [
-      'Streaming React Server Components paired with WebSocket delta updates for 12,000+ live route rules.',
-      'MongoDB time-series buckets with TTL rollups reducing storage overhead by 61% across 90-day telemetry windows.',
-      'Deterministic policy dry-run engine written in strict TypeScript to validate routing changes before global push.',
+      'Dynamic public portal serving notices, campus events, and academic schedules with fast server rendering.',
+      'Independent role-based admin dashboard enabling staff to publish announcements and manage media via Cloudinary.',
+      'Supabase database and authentication layer automating 20% of manual administrative workflows.',
     ],
     outcomes: [
-      { metric: '38 ms', label: 'Global policy propagation p95' },
-      { metric: '99.99%', label: 'Measured control-plane uptime over 14 months' },
-      { metric: '-61%', label: 'Telemetry storage footprint reduction' },
+      { metric: '20%', label: 'Institutional administrative workflows automated' },
+      { metric: 'Live', label: 'Deployed for IU Laboratory School & College' },
+      { metric: 'RBAC', label: 'Independent staff admin control panel' },
     ],
-    liveUrl: 'https://veridian-mesh.example.com',
-    githubUrl: 'https://github.com/darianmercer/veridian-mesh',
+    liveUrl: 'https://github.com/ibrahimchowdhury',
+    githubUrl: 'https://github.com/ibrahimchowdhury',
+    featured: true,
+    order: 1,
+    published: true,
   },
   {
-    id: 'solis-retrieval',
-    title: 'Solis Retrieval',
-    category: 'AI Systems',
-    year: '2026',
-    role: 'Principal Full-Stack Engineer',
-    summary:
-      'Hybrid semantic search and inline citation engine for engineering handbooks, RFCs, and incident archives.',
-    description:
-      'Built an end-to-end retrieval platform that ingests technical documentation, indexes semantic embeddings alongside exact lexical tokens in MongoDB Atlas Vector Search, and streams source-verified answers with paragraph-level citations.',
-    image: '/src/assets/images/project_solis_retrieval_1795619293545.jpg',
-    imageAlt:
-      'Smoky glass prisms and matte charcoal ceramic blocks refracting a clean cobalt light beam across dark slate',
-    stack: ['Next.js', 'AI', 'TypeScript', 'MongoDB'],
-    architecture: [
-      'Reciprocal rank fusion combining dense vector retrieval and exact symbol matching for code & API queries.',
-      'Incremental document chunking workers triggered via webhook diffs so index freshness stays under 45 seconds.',
-      'Automated citation-grounding evaluator verifying every synthesized statement against retrieved source spans.',
-    ],
-    outcomes: [
-      { metric: '94.2%', label: 'Citation accuracy across 1,200 benchmark queries' },
-      { metric: '680 ms', label: 'Time to first streamed answer token' },
-      { metric: '18,500', label: 'Indexed internal RFCs and runbooks' },
-    ],
-    liveUrl: 'https://solis-retrieval.example.com',
-    githubUrl: 'https://github.com/darianmercer/solis-retrieval',
-  },
-  {
-    id: 'kestrel-studio',
-    title: 'Kestrel Studio',
+    id: 'personal-portfolio-cms',
+    title: 'Personal Portfolio & CMS',
     category: 'Full-Stack',
     year: '2025',
-    role: 'Creator & Core Engineer',
+    role: 'Creator & Full-Stack Developer',
     summary:
-      'Collaborative browser-based parametric drafting and spatial prototyping workbench running at 60 FPS.',
+      'Modern personal portfolio engineered with a dedicated dynamic admin dashboard to manage projects, skills, experience, and certificates.',
     description:
-      'A multiplayer technical design workspace enabling product teams to sketch parametric constraints, preview procedural WebGL extrusions in real time, and export clean SVG or TypeScript geometry definitions.',
+      'Designed and built a dynamic full-stack portfolio platform featuring a dedicated admin dashboard so every section—projects, skills, credentials, experience, and site configuration—can be managed in real time without code redeploys.',
     image: '/src/assets/images/project_kestrel_studio_1795619293545.jpg',
     imageAlt:
-      'Precision drafting compass resting on layered dark frosted glass panels with subtle silver-blue spline lines',
-    stack: ['React', 'TypeScript', 'Node.js', 'AI'],
+      'Precision drafting instrument resting on layered frosted glass surfaces representing modern portfolio craftsmanship',
+    stack: [
+      'Next.js',
+      'Next.js API',
+      'Tailwind CSS',
+      'Framer Motion',
+      'MongoDB Atlas',
+      'Cloudinary',
+      'Vercel',
+    ],
     architecture: [
-      'Isolated Three.js rendering loop decoupled from React UI state to keep frame pacing steady during live edits.',
-      'CRDT-backed multiplayer synchronization over Node.js WebSockets with sub-30ms presence cursors.',
-      'AI-assisted constraint solver translating natural-language geometric adjustments into typed parameter diffs.',
+      'Full-stack Next.js API routes connected to MongoDB Atlas for structured CRUD across projects, skills, and certificates.',
+      'Cloudinary media management pipeline for optimized project thumbnails and resume assets.',
+      'Fluid responsive layouts and motion choreography deployed globally on Vercel.',
     ],
     outcomes: [
-      { metric: '60 FPS', label: 'Sustained viewport performance with 4,000+ nodes' },
-      { metric: '24 ms', label: 'Average multiplayer cursor & edit sync' },
-      { metric: '11k+', label: 'Exported production geometry specs' },
+      { metric: '100%', label: 'Dynamic CMS-controlled portfolio content' },
+      { metric: '4 Modules', label: 'Projects, skills, experience & certificates' },
+      { metric: 'Vercel', label: 'Edge-optimized production deployment' },
     ],
-    liveUrl: 'https://kestrel-studio.example.com',
-    githubUrl: 'https://github.com/darianmercer/kestrel-studio',
+    liveUrl: 'https://github.com/ibrahimchowdhury',
+    githubUrl: 'https://github.com/ibrahimchowdhury',
+    featured: true,
+    order: 2,
+    published: true,
   },
   {
-    id: 'caldera-pay',
-    title: 'Caldera Pay',
-    category: 'Full-Stack',
+    id: 'ml-assignment-help',
+    title: 'ML Assignment Help',
+    category: 'AI Systems',
     year: '2025',
-    role: 'Staff Systems Engineer',
+    role: 'Full-Stack Engineer',
     summary:
-      'Double-entry settlement ledger and webhook orchestration platform for multi-currency developer APIs.',
+      'Commercial assignment platform enabling clients to submit machine learning tasks while admins manage, track, and communicate via real-time chat.',
     description:
-      'Engineered an idempotent financial ledger and merchant dashboard capable of reconciling high-volume usage billing across 32 currencies with full audit trails and real-time anomaly alerts.',
-    image: '/src/assets/images/project_caldera_pay_1795619315452.jpg',
+      'Built a commercial client-to-admin assignment platform tailored for Machine Learning projects. Clients upload briefs and attachments securely through Cloudinary, track delivery milestones, and communicate directly with admins over real-time chat powered by Supabase.',
+    image: '/src/assets/images/project_solis_retrieval_1795619293545.jpg',
     imageAlt:
-      'Machined dark titanium and frosted sapphire glass ledger plates arranged in an isometric cascade',
-    stack: ['Node.js', 'MongoDB', 'React', 'TypeScript'],
+      'Dark optical glass prisms refracting a crisp sapphire beam representing machine learning workflows',
+    stack: ['React.js', 'Next.js', 'Cloudinary', 'Supabase', 'Tailwind CSS'],
     architecture: [
-      'Immutable double-entry ledger enforced via MongoDB multi-document ACID transactions and idempotency keys.',
-      'Exponential-backoff webhook delivery engine with dead-letter replay and cryptographic signature inspection.',
-      'High-density React reconciliation console with keyboard navigation and tabular financial reporting.',
+      'Structured client task submission workflow with multi-file attachment uploads via Cloudinary.',
+      'Real-time bidirectional messaging channel between clients and administrators powered by Supabase Realtime.',
+      'Centralized admin operations queue for tracking status transitions, deadlines, and client deliverables.',
     ],
     outcomes: [
-      { metric: '$48M+', label: 'Reconciled settlement volume in year one' },
-      { metric: '0', label: 'Duplicate postings across 14M+ ledger writes' },
-      { metric: '99.98%', label: 'First-attempt webhook delivery rate' },
+      { metric: 'Real-Time', label: 'Live client-admin chat & status sync' },
+      { metric: 'Commercial', label: 'End-to-end client submission portal' },
+      { metric: 'Supabase', label: 'Authenticated task tracking & storage' },
     ],
-    liveUrl: 'https://caldera-pay.example.com',
-    githubUrl: 'https://github.com/darianmercer/caldera-pay',
+    liveUrl: 'https://github.com/ibrahimchowdhury',
+    githubUrl: 'https://github.com/ibrahimchowdhury',
+    featured: true,
+    order: 3,
+    published: true,
+  },
+  {
+    id: 'solo-leveling-gamify',
+    title: 'Solo Leveling — Gamify Your Life',
+    category: 'Full-Stack',
+    year: '2024',
+    role: 'Full-Stack Developer',
+    summary:
+      'Gamified task management system inspired by Solo Leveling where users create quests, complete daily habits, and earn rank points.',
+    description:
+      'Developed a gamified personal productivity platform inspired by Solo Leveling. Users transform daily habits into structured quests, complete body and mind challenges, accumulate XP, and climb hunter ranks with persistent progress stored in Supabase.',
+    image: '/src/assets/images/project_caldera_pay_1795619315452.jpg',
+    imageAlt:
+      'Precision stepped dark titanium and sapphire glass tiers symbolizing quest progression and rank leveling',
+    stack: ['React', 'Next.js', 'Tailwind CSS', 'Node.js', 'Supabase', 'Vercel'],
+    architecture: [
+      'Quest engine supporting custom daily tasks, streak tracking, and dynamic rank-tier progression.',
+      'Node.js & Supabase backend persisting user stats, XP ledgers, and completed quest histories.',
+      'High-contrast dark interface engineered for fast daily check-ins on both desktop and mobile.',
+    ],
+    outcomes: [
+      { metric: 'Quests', label: 'Custom daily body & mind habit tracks' },
+      { metric: 'Rank XP', label: 'Automated leveling & progression system' },
+      { metric: 'Full-Stack', label: 'Next.js, Node.js & Supabase architecture' },
+    ],
+    liveUrl: 'https://github.com/ibrahimchowdhury',
+    githubUrl: 'https://github.com/ibrahimchowdhury',
+    featured: false,
+    order: 4,
+    published: true,
   },
 ];
 
-export const RESUME_CONTENT = {
-  headline: 'Darian Mercer — Full-Stack Systems Engineer',
-  contactLine: 'San Francisco, CA · hello@darianmercer.dev · github.com/darianmercer',
-  summary:
-    'Full-stack systems engineer with 8+ years designing high-throughput TypeScript, React, Next.js, Node.js, MongoDB, and applied AI platforms. Focused on low-latency distributed APIs, real-time 3D web experiences, and clean product architecture.',
-  experience: [
-    {
-      role: 'Staff Full-Stack Engineer',
-      company: 'Veridian Cloud Systems',
-      period: '2023 – Present',
-      highlights: [
-        'Architected edge-routing control plane serving 18 global regions with 38 ms p95 policy propagation.',
-        'Designed hybrid semantic + lexical retrieval engine (Next.js, MongoDB Vector Search) achieving 94.2% citation accuracy.',
-        'Mentored 9 engineers on TypeScript domain contracts, MongoDB indexing strategy, and frontend performance.',
-      ],
-    },
-    {
-      role: 'Senior Full-Stack Engineer',
-      company: 'Caldera Financial Infrastructure',
-      period: '2020 – 2023',
-      highlights: [
-        'Built immutable double-entry settlement ledger processing $48M+ in multi-currency volume with zero duplicate writes.',
-        'Reduced dashboard bundle weight by 47% and improved interaction latency under 100 ms across complex tabular views.',
-      ],
-    },
-    {
-      role: 'Software Engineer',
-      company: 'Northstar Interactive',
-      period: '2018 – 2020',
-      highlights: [
-        'Delivered real-time React & Three.js web visualizers and Node.js asset pipelines for industrial design clients.',
-      ],
-    },
-  ],
-  education: 'B.S. in Computer Science — University of Washington',
-};
+export const DEFAULT_CERTIFICATES: CertificateItem[] = [
+  {
+    id: 'ostad-mern-completion',
+    title: 'Completion Certificate',
+    program: 'Ostad – Full Stack Web Development (MERN)',
+    issuer: 'Ostad (Online Learning Platform)',
+    issuedYear: '2024',
+    description:
+      'Awarded upon successfully completing the 6-month intensive program covering React, Node.js, Express, MongoDB, and full-stack deployment.',
+    credentialUrl: '/assets/aistudio/New_Ibrahim_cv_71d777f1.pdf',
+    order: 1,
+    published: true,
+  },
+  {
+    id: 'ostad-mern-assessment',
+    title: 'Assessment Certificate',
+    program: 'Ostad – Full Stack Web Development (MERN)',
+    issuer: 'Ostad (Online Learning Platform)',
+    issuedYear: '2024',
+    description:
+      'Earned after passing rigorous technical assessments, demonstrating hands-on proficiency in building real-world full-stack applications.',
+    credentialUrl: '/assets/aistudio/New_Ibrahim_cv_71d777f1.pdf',
+    order: 2,
+    published: true,
+  },
+];
 
-export function buildPlainTextResume(): string {
+export const DEFAULT_EDUCATION: EducationItem[] = [
+  {
+    id: 'iu-bsc-ict',
+    degree: 'BSc Engineering in Information and Communication Technology',
+    institution: 'Islamic University, Bangladesh',
+    department: 'Department of Information and Communication Technology (ICT)',
+    period: 'Jan 2020 – Present',
+    cgpa: '3.35',
+    status: 'Final year',
+    order: 1,
+    published: true,
+  },
+];
+
+// Defensive payload sanitizers synchronized verbatim with firebase-blueprint.json constraints
+export function clampString(val: string, maxLen: number): string {
+  return val.trim().slice(0, maxLen);
+}
+
+export function slugifyId(text: string, prefix: string): string {
+  const cleaned = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48);
+  const suffix = Math.random().toString(36).slice(2, 7);
+  return `${prefix}-${cleaned || 'item'}-${suffix}`;
+}
+
+export function buildPlainTextResume(
+  profile: PortfolioProfile,
+  skills: SkillCategory[],
+  projects: ProjectItem[],
+  certificates: CertificateItem[],
+  education: EducationItem[],
+): string {
   const lines: string[] = [
-    RESUME_CONTENT.headline,
-    RESUME_CONTENT.contactLine,
+    profile.name.toUpperCase(),
+    `${profile.email}${profile.showPhone && profile.phone ? ` | ${profile.phone}` : ''} | ${profile.githubUrl} | ${profile.linkedinUrl}`,
     '',
     'SUMMARY',
-    RESUME_CONTENT.summary,
+    profile.heroSummary,
+    profile.aboutBody,
     '',
-    'CORE STACK',
-    'React, Next.js, Node.js, MongoDB, TypeScript, Applied AI (RAG, Vector Search, Evaluation)',
+    'SKILLS',
+    ...skills
+      .filter((s) => s.published)
+      .map((s) => `${s.name}: ${s.items.join(', ')}`),
     '',
-    'EXPERIENCE',
-    ...RESUME_CONTENT.experience.flatMap((exp) => [
-      `${exp.role} — ${exp.company} (${exp.period})`,
-      ...exp.highlights.map((h) => `  • ${h}`),
-      '',
-    ]),
+    'PROJECTS',
+    ...projects
+      .filter((p) => p.published)
+      .flatMap((p) => [
+        `${p.title} (${p.year}) — ${p.stack.join(', ')}`,
+        `  • ${p.description}`,
+        '',
+      ]),
+    'CERTIFICATES',
+    ...certificates
+      .filter((c) => c.published)
+      .flatMap((c) => [
+        `${c.title} — ${c.program} (${c.issuer}, Issued: ${c.issuedYear})`,
+        `  • ${c.description}`,
+        '',
+      ]),
     'EDUCATION',
-    RESUME_CONTENT.education,
+    ...education
+      .filter((e) => e.published)
+      .map(
+        (e) =>
+          `${e.degree} — ${e.institution} (${e.period}) | ${e.department} | CGPA: ${e.cgpa} | Status: ${e.status}`,
+      ),
   ];
   return lines.join('\n');
 }

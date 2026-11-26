@@ -1,0 +1,227 @@
+{
+  "entities": {
+    "PortfolioProfile": {
+      "title": "Portfolio Profile & Site Settings",
+      "description": "Editable portfolio hero, about narrative, contact links, metrics, section toggles, and 3D scene settings.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "role": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "headline": { "type": "string", "minLength": 4, "maxLength": 180 },
+        "location": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "availability": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "email": { "type": "string", "format": "email", "maxLength": 120 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "showPhone": { "type": "boolean" },
+        "githubUrl": { "type": "string", "maxLength": 240 },
+        "linkedinUrl": { "type": "string", "maxLength": 240 },
+        "portfolioUrl": { "type": "string", "maxLength": 240 },
+        "resumeUrl": { "type": "string", "maxLength": 240 },
+        "heroSummary": { "type": "string", "minLength": 10, "maxLength": 600 },
+        "aboutLead": { "type": "string", "minLength": 10, "maxLength": 600 },
+        "aboutBody": { "type": "string", "minLength": 10, "maxLength": 1200 },
+        "metrics": { "type": "array", "description": "Up to 4 highlight metric objects {value, label}" },
+        "sectionVisibility": { "type": "object", "description": "Boolean visibility flags for homepage sections" },
+        "sceneSettings": { "type": "object", "description": "3D core speed and accent palette settings" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "name",
+        "role",
+        "headline",
+        "location",
+        "availability",
+        "email",
+        "phone",
+        "showPhone",
+        "githubUrl",
+        "linkedinUrl",
+        "portfolioUrl",
+        "resumeUrl",
+        "heroSummary",
+        "aboutLead",
+        "aboutBody",
+        "metrics",
+        "sectionVisibility",
+        "sceneSettings",
+        "updatedAt"
+      ]
+    },
+    "SkillCategory": {
+      "title": "Skill Category",
+      "description": "Grouped technical skills displayed in the interactive Tech Stack section.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "domain": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "experience": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "summary": { "type": "string", "minLength": 5, "maxLength": 500 },
+        "items": { "type": "array", "description": "List of skill strings (max 24)" },
+        "order": { "type": "number" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "domain", "experience", "summary", "items", "order", "published", "createdAt", "updatedAt"]
+    },
+    "Project": {
+      "title": "Portfolio Project",
+      "description": "Engineering project showcase item with architecture highlights, outcomes, and links.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "category": { "type": "string", "enum": ["Full-Stack", "AI Systems", "Platform"] },
+        "year": { "type": "string", "minLength": 4, "maxLength": 20 },
+        "role": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "summary": { "type": "string", "minLength": 10, "maxLength": 400 },
+        "description": { "type": "string", "minLength": 10, "maxLength": 1500 },
+        "image": { "type": "string", "maxLength": 400 },
+        "imageAlt": { "type": "string", "maxLength": 240 },
+        "stack": { "type": "array", "description": "Technologies list (max 16)" },
+        "architecture": { "type": "array", "description": "Architectural bullet points (max 8)" },
+        "outcomes": { "type": "array", "description": "Measurable outcome objects {metric, label} (max 4)" },
+        "liveUrl": { "type": "string", "maxLength": 300 },
+        "githubUrl": { "type": "string", "maxLength": 300 },
+        "featured": { "type": "boolean" },
+        "order": { "type": "number" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "title",
+        "category",
+        "year",
+        "role",
+        "summary",
+        "description",
+        "image",
+        "imageAlt",
+        "stack",
+        "architecture",
+        "outcomes",
+        "liveUrl",
+        "githubUrl",
+        "featured",
+        "order",
+        "published",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Certificate": {
+      "title": "Certificate",
+      "description": "Verified course completion or technical assessment credential.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "program": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "issuer": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "issuedYear": { "type": "string", "minLength": 4, "maxLength": 30 },
+        "description": { "type": "string", "minLength": 5, "maxLength": 600 },
+        "credentialUrl": { "type": "string", "maxLength": 300 },
+        "order": { "type": "number" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "title",
+        "program",
+        "issuer",
+        "issuedYear",
+        "description",
+        "credentialUrl",
+        "order",
+        "published",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Education": {
+      "title": "Education Record",
+      "description": "Academic degree, institution, department, CGPA, and timeline.",
+      "type": "object",
+      "properties": {
+        "degree": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "institution": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "department": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "period": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "cgpa": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "maxLength": 60 },
+        "order": { "type": "number" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "degree",
+        "institution",
+        "department",
+        "period",
+        "cgpa",
+        "status",
+        "order",
+        "published",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ContactMessage": {
+      "title": "Contact Inquiry Message",
+      "description": "Visitor contact form submission readable and manageable strictly by the portfolio admin.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 140 },
+        "subject": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "message": { "type": "string", "minLength": 5, "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["unread", "read", "archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "subject", "message", "status", "createdAt", "updatedAt"]
+    },
+    "AdminRecord": {
+      "title": "Admin Allowlist Record",
+      "description": "Trusted database record granting admin permissions to a verified Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "maxLength": 140 },
+        "role": { "type": "string", "enum": ["admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/portfolio/{docId}": {
+      "schema": { "$ref": "#/entities/PortfolioProfile" },
+      "description": "Single public site profile document (/portfolio/profile) editable strictly by admin."
+    },
+    "/skills/{skillId}": {
+      "schema": { "$ref": "#/entities/SkillCategory" },
+      "description": "Skill categories from Ibrahim Chowdhury's CV editable from the Admin Dashboard."
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Portfolio projects with live demos, GitHub repositories, and architectural details."
+    },
+    "/certificates/{certId}": {
+      "schema": { "$ref": "#/entities/Certificate" },
+      "description": "Earned technical certifications and assessment credentials."
+    },
+    "/education/{eduId}": {
+      "schema": { "$ref": "#/entities/Education" },
+      "description": "Academic background and university degree entries."
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "Private visitor inquiries submitted via the homepage contact form; admin-only read/update/delete."
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Trusted admin allowlist documents checked by security rules."
+    }
+  }
+}

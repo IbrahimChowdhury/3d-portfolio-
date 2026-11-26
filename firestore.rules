@@ -1,0 +1,360 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened global primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Zero-lookup admin check safe for list queries (no get/exists)
+    function isBootstrapAdmin() {
+      return isVerifiedUser() && request.auth.token.email == 'ibrahimchowdhury1000@gmail.com';
+    }
+
+    // Full admin check for single-document reads and writes
+    function isAdmin() {
+      return isBootstrapAdmin() || (
+        isVerifiedUser() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isNonEmptyString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isBoundedString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    function isStringList(val, maxItems) {
+      return val is list && val.size() <= maxItems && (val.size() == 0 || val[0] is string);
+    }
+
+    // 3. Entity Validation Blueprints (Anti-Update-Gap)
+    function isValidProfile(data) {
+      return data.keys().hasAll([
+          'name', 'role', 'headline', 'location', 'availability',
+          'email', 'phone', 'showPhone', 'githubUrl', 'linkedinUrl',
+          'portfolioUrl', 'resumeUrl', 'heroSummary', 'aboutLead',
+          'aboutBody', 'metrics', 'sectionVisibility', 'sceneSettings', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'role', 'headline', 'location', 'availability',
+          'email', 'phone', 'showPhone', 'githubUrl', 'linkedinUrl',
+          'portfolioUrl', 'resumeUrl', 'heroSummary', 'aboutLead',
+          'aboutBody', 'metrics', 'sectionVisibility', 'sceneSettings', 'updatedAt'
+        ])
+        && isNonEmptyString(data.name, 2, 100)
+        && isNonEmptyString(data.role, 2, 120)
+        && isNonEmptyString(data.headline, 4, 180)
+        && isNonEmptyString(data.location, 2, 120)
+        && isNonEmptyString(data.availability, 2, 160)
+        && isNonEmptyString(data.email, 5, 120)
+        && isBoundedString(data.phone, 40)
+        && data.showPhone is bool
+        && isBoundedString(data.githubUrl, 240)
+        && isBoundedString(data.linkedinUrl, 240)
+        && isBoundedString(data.portfolioUrl, 240)
+        && isBoundedString(data.resumeUrl, 240)
+        && isNonEmptyString(data.heroSummary, 10, 600)
+        && isNonEmptyString(data.aboutLead, 10, 600)
+        && isNonEmptyString(data.aboutBody, 10, 1200)
+        && data.metrics is list && data.metrics.size() <= 4
+        && (data.metrics.size() == 0 || data.metrics[0] is map)
+        && data.sectionVisibility is map
+        && data.sectionVisibility.keys().hasAll(['about', 'skills', 'projects', 'certificates', 'education', 'contact'])
+        && data.sectionVisibility.keys().hasOnly(['about', 'skills', 'projects', 'certificates', 'education', 'contact'])
+        && data.sectionVisibility.about is bool
+        && data.sectionVisibility.skills is bool
+        && data.sectionVisibility.projects is bool
+        && data.sectionVisibility.certificates is bool
+        && data.sectionVisibility.education is bool
+        && data.sectionVisibility.contact is bool
+        && data.sceneSettings is map
+        && data.sceneSettings.keys().hasAll(['coreSpeed', 'accentTheme', 'showParticles'])
+        && data.sceneSettings.keys().hasOnly(['coreSpeed', 'accentTheme', 'showParticles'])
+        && data.sceneSettings.coreSpeed is number
+        && data.sceneSettings.coreSpeed >= 0
+        && data.sceneSettings.coreSpeed <= 2.5
+        && data.sceneSettings.accentTheme in ['sapphire', 'emerald', 'amber']
+        && data.sceneSettings.showParticles is bool
+        && data.updatedAt == request.time;
+    }
+
+    function isValidSkill(data) {
+      return data.keys().hasAll([
+          'name', 'domain', 'experience', 'summary', 'items',
+          'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'domain', 'experience', 'summary', 'items',
+          'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && isNonEmptyString(data.name, 2, 80)
+        && isNonEmptyString(data.domain, 2, 120)
+        && isNonEmptyString(data.experience, 1, 60)
+        && isNonEmptyString(data.summary, 5, 500)
+        && isStringList(data.items, 24)
+        && data.order is number && data.order >= 0 && data.order <= 999
+        && data.published is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll([
+          'title', 'category', 'year', 'role', 'summary', 'description',
+          'image', 'imageAlt', 'stack', 'architecture', 'outcomes',
+          'liveUrl', 'githubUrl', 'featured', 'order', 'published',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'category', 'year', 'role', 'summary', 'description',
+          'image', 'imageAlt', 'stack', 'architecture', 'outcomes',
+          'liveUrl', 'githubUrl', 'featured', 'order', 'published',
+          'createdAt', 'updatedAt'
+        ])
+        && isNonEmptyString(data.title, 2, 120)
+        && data.category in ['Full-Stack', 'AI Systems', 'Platform']
+        && isNonEmptyString(data.year, 4, 20)
+        && isNonEmptyString(data.role, 2, 100)
+        && isNonEmptyString(data.summary, 10, 400)
+        && isNonEmptyString(data.description, 10, 1500)
+        && isBoundedString(data.image, 400)
+        && isBoundedString(data.imageAlt, 240)
+        && isStringList(data.stack, 16)
+        && isStringList(data.architecture, 8)
+        && data.outcomes is list && data.outcomes.size() <= 4
+        && (data.outcomes.size() == 0 || data.outcomes[0] is map)
+        && isBoundedString(data.liveUrl, 300)
+        && isBoundedString(data.githubUrl, 300)
+        && data.featured is bool
+        && data.order is number && data.order >= 0 && data.order <= 999
+        && data.published is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidCertificate(data) {
+      return data.keys().hasAll([
+          'title', 'program', 'issuer', 'issuedYear', 'description',
+          'credentialUrl', 'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'program', 'issuer', 'issuedYear', 'description',
+          'credentialUrl', 'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && isNonEmptyString(data.title, 2, 140)
+        && isNonEmptyString(data.program, 2, 140)
+        && isNonEmptyString(data.issuer, 2, 120)
+        && isNonEmptyString(data.issuedYear, 4, 30)
+        && isNonEmptyString(data.description, 5, 600)
+        && isBoundedString(data.credentialUrl, 300)
+        && data.order is number && data.order >= 0 && data.order <= 999
+        && data.published is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidEducation(data) {
+      return data.keys().hasAll([
+          'degree', 'institution', 'department', 'period', 'cgpa',
+          'status', 'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'degree', 'institution', 'department', 'period', 'cgpa',
+          'status', 'order', 'published', 'createdAt', 'updatedAt'
+        ])
+        && isNonEmptyString(data.degree, 2, 160)
+        && isNonEmptyString(data.institution, 2, 140)
+        && isNonEmptyString(data.department, 2, 140)
+        && isNonEmptyString(data.period, 2, 60)
+        && isBoundedString(data.cgpa, 40)
+        && isBoundedString(data.status, 60)
+        && data.order is number && data.order >= 0 && data.order <= 999
+        && data.published is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll([
+          'name', 'email', 'subject', 'message', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'email', 'subject', 'message', 'status', 'createdAt', 'updatedAt'
+        ])
+        && isNonEmptyString(data.name, 2, 100)
+        && isNonEmptyString(data.email, 5, 140)
+        && isNonEmptyString(data.subject, 2, 140)
+        && isNonEmptyString(data.message, 5, 2000)
+        && data.status in ['unread', 'read', 'archived']
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidAdminRecord(data) {
+      return data.keys().hasAll(['email', 'role', 'createdAt'])
+        && data.keys().hasOnly(['email', 'role', 'createdAt'])
+        && isNonEmptyString(data.email, 5, 140)
+        && data.role == 'admin'
+        && data.createdAt is timestamp;
+    }
+
+    // 4. Collection Security Rules
+
+    // Public portfolio profile (/portfolio/profile)
+    match /portfolio/{docId} {
+      allow get: if isValidId(docId) && docId == 'profile';
+      allow list: if false;
+      allow create: if isSignedIn() && isValidId(docId) && docId == 'profile'
+        && isValidProfile(incoming()) && isAdmin();
+      allow update: if isSignedIn() && isValidId(docId) && docId == 'profile'
+        && isValidProfile(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'role', 'headline', 'location', 'availability',
+          'email', 'phone', 'showPhone', 'githubUrl', 'linkedinUrl',
+          'portfolioUrl', 'resumeUrl', 'heroSummary', 'aboutLead',
+          'aboutBody', 'metrics', 'sectionVisibility', 'sceneSettings', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if false;
+    }
+
+    // Skill categories
+    match /skills/{skillId} {
+      allow get: if isValidId(skillId) && (existing().published == true || isAdmin());
+      allow list: if existing().published == true || isBootstrapAdmin();
+      allow create: if isSignedIn() && isValidId(skillId)
+        && isValidSkill(incoming())
+        && incoming().createdAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && isValidId(skillId)
+        && isValidSkill(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'domain', 'experience', 'summary', 'items',
+          'order', 'published', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(skillId) && isAdmin();
+    }
+
+    // Portfolio projects
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId) && (existing().published == true || isAdmin());
+      allow list: if existing().published == true || isBootstrapAdmin();
+      allow create: if isSignedIn() && isValidId(projectId)
+        && isValidProject(incoming())
+        && incoming().createdAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && isValidId(projectId)
+        && isValidProject(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'category', 'year', 'role', 'summary', 'description',
+          'image', 'imageAlt', 'stack', 'architecture', 'outcomes',
+          'liveUrl', 'githubUrl', 'featured', 'order', 'published', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(projectId) && isAdmin();
+    }
+
+    // Certificates
+    match /certificates/{certId} {
+      allow get: if isValidId(certId) && (existing().published == true || isAdmin());
+      allow list: if existing().published == true || isBootstrapAdmin();
+      allow create: if isSignedIn() && isValidId(certId)
+        && isValidCertificate(incoming())
+        && incoming().createdAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && isValidId(certId)
+        && isValidCertificate(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'program', 'issuer', 'issuedYear', 'description',
+          'credentialUrl', 'order', 'published', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(certId) && isAdmin();
+    }
+
+    // Education records
+    match /education/{eduId} {
+      allow get: if isValidId(eduId) && (existing().published == true || isAdmin());
+      allow list: if existing().published == true || isBootstrapAdmin();
+      allow create: if isSignedIn() && isValidId(eduId)
+        && isValidEducation(incoming())
+        && incoming().createdAt == request.time
+        && isAdmin();
+      allow update: if isSignedIn() && isValidId(eduId)
+        && isValidEducation(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'degree', 'institution', 'department', 'period', 'cgpa',
+          'status', 'order', 'published', 'updatedAt'
+        ])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(eduId) && isAdmin();
+    }
+
+    // Visitor contact messages (Strict PII isolation: public create, admin-only read/manage)
+    match /messages/{messageId} {
+      allow get: if isSignedIn() && isValidId(messageId) && isAdmin();
+      allow list: if isBootstrapAdmin();
+      allow create: if isValidId(messageId)
+        && isValidMessage(incoming())
+        && incoming().status == 'unread'
+        && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidId(messageId)
+        && isValidMessage(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().name == existing().name
+        && incoming().email == existing().email
+        && incoming().subject == existing().subject
+        && incoming().message == existing().message
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && isAdmin();
+      allow delete: if isSignedIn() && isValidId(messageId) && isAdmin();
+    }
+
+    // Trusted Admin Allowlist (strictly self-read or bootstrap-admin managed)
+    match /admins/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if isBootstrapAdmin();
+      allow create: if isSignedIn() && isValidId(userId)
+        && isValidAdminRecord(incoming())
+        && incoming().createdAt == request.time
+        && isBootstrapAdmin();
+      allow update: if isSignedIn() && isValidId(userId)
+        && isValidAdminRecord(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'role'])
+        && isBootstrapAdmin();
+      allow delete: if isSignedIn() && isValidId(userId) && isBootstrapAdmin();
+    }
+  }
+}

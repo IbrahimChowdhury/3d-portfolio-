@@ -98,62 +98,74 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           </p>
 
           {/* Measurable Outcomes */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-5 border-y border-white/10">
-            {project.outcomes.map((item) => (
-              <div key={item.label} className="space-y-1">
-                <div className="font-mono text-xl sm:text-2xl font-medium text-sky-300 tabular-nums">
-                  {item.metric}
+          {project.outcomes.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-5 border-y border-white/10">
+              {project.outcomes.map((item, idx) => (
+                <div key={`${item.label}-${idx}`} className="space-y-1">
+                  <div className="font-mono text-xl sm:text-2xl font-medium text-sky-300 tabular-nums">
+                    {item.metric}
+                  </div>
+                  <div className="text-xs text-slate-400 leading-snug">{item.label}</div>
                 </div>
-                <div className="text-xs text-slate-400 leading-snug">{item.label}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Architectural Notes */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-slate-100">System Architecture</h4>
-            <ul className="space-y-2.5 text-sm text-slate-300 leading-relaxed">
-              {project.architecture.map((point) => (
-                <li key={point} className="flex items-start gap-3">
-                  <span className="text-sky-400 select-none" aria-hidden="true">
-                    —
-                  </span>
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {project.architecture.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-slate-100">System Architecture</h4>
+              <ul className="space-y-2.5 text-sm text-slate-300 leading-relaxed">
+                {project.architecture.map((point, idx) => (
+                  <li key={`${point}-${idx}`} className="flex items-start gap-3">
+                    <span className="text-sky-400 select-none" aria-hidden="true">
+                      —
+                    </span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Unboxed Technology Stack Metadata */}
-          <div className="space-y-1.5">
-            <div className="text-xs text-slate-400">Core Technologies</div>
-            <div className="text-sm text-slate-200 font-medium">
-              {project.stack.join(' · ')}
+          {project.stack.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-xs text-slate-400">Core Technologies</div>
+              <div className="text-sm text-slate-200 font-medium">
+                {project.stack.join(' · ')}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Action Bar */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-950 bg-sky-400 hover:bg-sky-300 transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
-            >
-              <span>Visit Live Demo</span>
-              <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
-            </a>
+          {(project.liveUrl || project.githubUrl) && (
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-950 bg-sky-400 hover:bg-sky-300 transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                >
+                  <span>Visit Live Demo</span>
+                  <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
+                </a>
+              )}
 
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-slate-100 border border-white/15 hover:border-white/30 hover:bg-white/[0.05] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            >
-              <Github className="w-4 h-4" aria-hidden="true" />
-              <span>View Source on GitHub</span>
-            </a>
-          </div>
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-slate-100 border border-white/15 hover:border-white/30 hover:bg-white/[0.05] transition-colors whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <Github className="w-4 h-4" aria-hidden="true" />
+                  <span>View Source on GitHub</span>
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
